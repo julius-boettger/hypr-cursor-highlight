@@ -7,19 +7,18 @@
 
   outputs = { self, hyprland, nixpkgs, systems, ... }:
   let
-    eachSystem = nixpkgs.lib.genAttrs (import systems);
+    eachSystem = fn: nixpkgs.lib.genAttrs (import systems) (system: fn system (import nixpkgs {
+      inherit system;
+      overlays = [ hyprland.overlays.hyprland-packages ];
+    }));
   in
   {
-    devShells = eachSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        default = pkgs.mkShell {
-          inputsFrom  = [ hyprland.packages.${system}.hyprland ];
-          buildInputs = [ hyprland.packages.${system}.hyprland ];
-        };
-      }
-    );
+    devShells = eachSystem (system: pkgs: {
+      default = pkgs.mkShell.override { inherit (pkgs.hyprland) stdenv; } {
+        inputsFrom  = [ pkgs.hyprland ];
+        buildInputs = [ pkgs.hyprland ];
+        nativeBuildInputs = with pkgs; [ pkg-config meson ninja ];
+      };
+    });
   };
 }
