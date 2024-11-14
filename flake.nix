@@ -33,7 +33,7 @@
 
     devShells = eachSystem (system: pkgs: {
       default = pkgs.mkShell.override { inherit (pkgs.hyprland) stdenv; } {
-        inputsFrom = [ self.packages.${system}.default ];
+        inherit (self.packages.${system}.default) nativeBuildInputs buildInputs;
       };
     });
   };
