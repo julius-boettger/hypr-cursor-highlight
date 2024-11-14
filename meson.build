@@ -1,10 +1,11 @@
 project(
     'hypr-cursor-highlight', 'cpp',
+    version: '0.1',
     default_options: ['buildtype=release']
 )
 
 shared_module(
-    'hypr-cursor-highlight',
+    meson.project_name(),
 
     include_directories: 'include',
     sources: [ 'src/main.cpp' ],
