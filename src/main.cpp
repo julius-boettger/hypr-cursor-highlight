@@ -39,7 +39,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
 
     logfile::write_line(std::format("Plugin started, using commit hash {}", HASH));
 
-    return { "hypr-cursor-highlight", "", "julius-boettger", "1.0" };
+    return { "hypr-cursor-highlight", "", "julius-boettger", "0.1" };
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {}
