@@ -1,26 +1,10 @@
-#define WLR_USE_UNSTABLE
-
-#include <chrono>
-#include <format>
-#include <fstream>
-#include <iostream>
-
 #include "globals.hpp"
 
-namespace logfile {
-    constexpr auto PATH { "/tmp/hypr-cursor-highlight.log" };
-    // append-mode
-    std::ofstream file { PATH, std::ios::app };
+static SP<HOOK_CALLBACK_FN> g_mouseMoveCallbackHandle { nullptr };
 
-    constexpr void write_line(std::string_view line) {
-        const auto now { std::chrono::system_clock::now() };
-        // ignore fractions of seconds
-        const auto now_rounded { std::chrono::floor<std::chrono::seconds>(now) };
-
-        const auto timestamp { std::format("{:%Y-%m-%d %H:%M:%S}", now_rounded) };
-
-        file << timestamp << ": " << line << "\n";
-    }
+void mouseMoveCallback(void* /*unused*/, SCallbackInfo& /*unused*/, std::any param) {
+    const auto cursorPos = std::any_cast<Vector2D>(param);
+    Debug::log(LOG, "[hypr-cursor-highlight] Mouse cursor at {}", cursorPos);
 }
 
 // do NOT change
@@ -37,9 +21,12 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
         throw std::runtime_error("[hypr-cursor-highlight] Version mismatch");
     }
 
-    logfile::write_line(std::format("Plugin started, using commit hash {}", HASH));
+    g_mouseMoveCallbackHandle = HyprlandAPI::registerCallbackDynamic(PHANDLE, "mouseMove", mouseMoveCallback);
 
+    Debug::log(LOG, "[hypr-cursor-highlight] Plugin initialized.");
     return { "hypr-cursor-highlight", "", "julius-boettger", "0.1" };
 }
 
-APICALL EXPORT void PLUGIN_EXIT() {}
+APICALL EXPORT void PLUGIN_EXIT() {
+    Debug::log(LOG, "[hypr-cursor-highlight] Plugin exited.");
+}
