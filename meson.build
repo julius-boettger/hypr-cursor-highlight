@@ -10,6 +10,7 @@ shared_module(
     include_directories: 'include',
     sources: [ 'src/main.cpp' ],
 
+    install: true, # necessary for nix build
     name_prefix: '', # "lib" by default
 
     # compiler arguments (assuming gcc)

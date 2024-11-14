@@ -13,11 +13,27 @@
     }));
   in
   {
+    packages = eachSystem (system: pkgs: rec {
+      default = hypr-cursor-highlight;
+      hypr-cursor-highlight = pkgs.hyprland.stdenv.mkDerivation {
+        pname = "hypr-cursor-highlight";
+        version = "0.1";
+        src = ./.;
+
+        inherit (pkgs.hyprland) nativeBuildInputs;
+        buildInputs = [ pkgs.hyprland ] ++ pkgs.hyprland.buildInputs;
+
+        meta = {
+          homepage = "https://github.com/julius-boettger/hypr-cursor-highlight";
+          license = pkgs.lib.licenses.gpl3;
+          inherit (pkgs.hyprland.meta) platforms;
+        };
+      };
+    });
+
     devShells = eachSystem (system: pkgs: {
       default = pkgs.mkShell.override { inherit (pkgs.hyprland) stdenv; } {
-        inputsFrom  = [ pkgs.hyprland ];
-        buildInputs = [ pkgs.hyprland ];
-        nativeBuildInputs = with pkgs; [ pkg-config meson ninja ];
+        inputsFrom = [ self.packages.${system}.default ];
       };
     });
   };
